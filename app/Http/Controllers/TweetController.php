@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessTweet;
 use App\Models\Category;
 use App\Models\Tweet;
 use Illuminate\Http\Request;
@@ -32,12 +33,20 @@ class TweetController extends Controller
 
         ]);
 
-        Tweet::create([
-            'category_id' => $request->category_id,
-            'username' => Auth::user()->name, // Берем имя авторизованного пользователя
-            'content' => $request->content,
-        ]);
+        // Tweet::create([
+        //     'category_id' => $request->category_id,
+        //     'username' => Auth::user()->name, // Берем имя авторизованного пользователя
+        //     'content' => $request->content,
+        // ]);
 
-        return redirect()->back();
+
+        ProcessTweet::dispatch([
+            'category_id' => $request->category_id,
+            'username' => Auth::user()->name, // Имя авторизованного пользователя
+            'content' => $request->content,
+        ])->onQueue('store_tweet');
+
+
+        return redirect()->route('tweets.index');
     }
 }

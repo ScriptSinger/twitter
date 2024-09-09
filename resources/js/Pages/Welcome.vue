@@ -38,10 +38,10 @@ defineProps({
                 <template v-if="canLogin">
                     <Link
                         v-if="$page.props.auth.user"
-                        :href="route('dashboard')"
+                        :href="route('tweets.index')"
                         class="text-blue-500 hover:text-blue-600 dark:hover:text-blue-400"
                     >
-                        Dashboard
+                        Home
                     </Link>
 
                     <template v-else>
