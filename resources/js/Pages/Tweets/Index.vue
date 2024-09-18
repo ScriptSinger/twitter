@@ -60,6 +60,31 @@
                         />
                     </div>
 
+                    <!-- Прелоадер -->
+                    <div v-if="isLoading" class="mb-4 text-center">
+                        <svg
+                            class="animate-spin h-6 w-6 text-blue-500 mx-auto"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                        >
+                            <circle
+                                class="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                stroke-width="4"
+                            ></circle>
+                            <path
+                                class="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v8z"
+                            ></path>
+                        </svg>
+                        <p>Отправка твита...</p>
+                    </div>
+
                     <div class="text-right">
                         <button
                             type="submit"
@@ -115,15 +140,39 @@ export default {
         return {
             content: "",
             selectedCategory: "", // Для выбранной категории
+            isLoading: false, // Для прелоадера
         };
     },
 
+    created() {
+        // Подключаем WebSocket для получения новых твитов
+        window.Echo.channel("tweets").listen("TweetCreated", (event) => {
+            this.tweets.unshift(event.tweet); // Добавляем новый твит в начало списка
+            // console.log(event);
+            // Отключаем прелоадер после получения нового твита
+            this.isLoading = false;
+        });
+    },
+
     methods: {
-        store() {
-            this.$inertia.post("/tweets", {
-                content: this.content,
-                category_id: this.selectedCategory, // Отправляем выбранную категорию
-            });
+        async store() {
+            // Активируем прелоадер перед отправкой
+            this.isLoading = true;
+
+            try {
+                await this.$inertia.post("/tweets", {
+                    content: this.content,
+                    category_id: this.selectedCategory, // Отправляем выбранную категорию
+                });
+
+                // Сброс содержимого формы после отправки
+                this.content = "";
+                this.selectedCategory = "";
+            } catch (error) {
+                // В случае ошибки отключаем прелоадер
+                this.isLoading = false;
+                console.error(error);
+            }
         },
     },
 };

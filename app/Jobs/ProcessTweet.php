@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Events\TweetCreated;
 use App\Models\Tweet;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -29,10 +30,13 @@ class ProcessTweet implements ShouldQueue
      */
     public function handle(): void
     {
-        Tweet::create([
+        $tweet = Tweet::create([
             'category_id' => $this->tweet['category_id'],
             'username' => $this->tweet['username'],
             'content' => $this->tweet['content'],
         ]);
+
+        // Broadcasting события TweetCreated для обновления в реальном времени
+        broadcast(new TweetCreated($tweet))->toOthers();
     }
 }

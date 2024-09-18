@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
+import Echo from "laravel-echo";
 
 defineProps({
     canLogin: Boolean,
@@ -70,3 +71,12 @@ defineProps({
         </footer>
     </div>
 </template>
+<script>
+export default {
+    created() {
+        window.Echo.channel("test-name").listen(".test", (res) => {
+            console.log(res);
+        });
+    },
+};
+</script>

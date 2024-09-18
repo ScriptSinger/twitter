@@ -30,7 +30,6 @@ class TweetController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'content' => 'required|max:280',
-
         ]);
 
         // Tweet::create([
